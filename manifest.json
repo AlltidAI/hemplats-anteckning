@@ -1,0 +1,2 @@
+{"name": "Hemplats anteckning", "short_name": "Hemplats", "start_url": "./", "display": "standalone",
+ "background_color": "#f6f0e8", "theme_color": "#a4523a", "icons": [{"src": "ikon.png", "sizes": "512x512", "type": "image/png"}]}

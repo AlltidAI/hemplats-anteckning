@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Hemplats">
+<meta name="theme-color" content="#a4523a">
+<link rel="apple-touch-icon" href="ikon.png">
+<link rel="manifest" href="manifest.json">
+<title>Hemplats anteckning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Lora:wght@600&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f6f0e8; --kort: #fffdf9; --text: #1d1a15; --dov: #6f665b; --linje: #e2d8cb; --accent: #a4523a; --accent-text: #fff; --ok: #3d6b45; --fel: #a3322a; --gul: #8a6a12; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #1d1a15; --kort: #27231d; --text: #f6f0e8; --dov: #b3a898; --linje: #3a342b; --accent: #d57c5f; --accent-text: #1d1a15; --ok: #8fc39a; --fel: #ef8a80; --gul: #e0c068; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.45 Inter, -apple-system, system-ui, sans-serif; }
+  main { max-width: 560px; margin: 0 auto; padding: max(16px, env(safe-area-inset-top)) 16px calc(84px + env(safe-area-inset-bottom)); }
+  h1 { font: 600 24px/1.2 Lora, Georgia, serif; margin: 8px 0 4px; }
+  .under { color: var(--dov); margin: 0 0 16px; font-size: 15px; }
+  .flikar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; background: var(--linje); padding: 4px; border-radius: 12px; margin-bottom: 14px; }
+  .flikar button { border: 0; background: transparent; color: var(--text); font: 600 14px Inter, sans-serif; padding: 10px 4px; border-radius: 9px; }
+  .flikar button[aria-selected="true"] { background: var(--kort); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .kort { background: var(--kort); border: 1px solid var(--linje); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .hjalp { color: var(--dov); font-size: 14px; margin: 0 0 10px; }
+  textarea { width: 100%; min-height: 150px; resize: vertical; border: 1px solid var(--linje); border-radius: 10px; padding: 12px; font: inherit; color: var(--text); background: var(--bg); }
+  input[type=text] { width: 100%; border: 1px solid var(--linje); border-radius: 10px; padding: 10px 12px; font: inherit; color: var(--text); background: var(--bg); }
+  textarea:focus, input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .etikett { font-weight: 600; font-size: 14px; margin: 14px 0 6px; }
+  .val { display: flex; flex-wrap: wrap; gap: 6px; }
+  .val label { position: relative; }
+  .val input { position: absolute; opacity: 0; inset: 0; }
+  .val span { display: inline-block; border: 1px solid var(--linje); border-radius: 18px; padding: 7px 12px; font-size: 14px; }
+  .val input:checked + span { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  .val input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .knapp { width: 100%; margin-top: 14px; border: 0; border-radius: 12px; padding: 14px; font: 600 17px Inter, sans-serif; background: var(--accent); color: var(--accent-text); }
+  .knapp:disabled { opacity: .6; }
+  .knapp.sek { background: transparent; color: var(--accent); border: 1px solid var(--accent); padding: 12px; font-size: 15px; margin-top: 8px; }
+  .prata { width: 100%; margin: 0 0 10px; border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 12px; padding: 13px; font: 600 16px Inter, sans-serif; }
+  .prata.pa { background: var(--accent); color: var(--accent-text); }
+  .status { min-height: 22px; margin-top: 10px; font-size: 15px; }
+  .ok { color: var(--ok); } .fel { color: var(--fel); }
+  .dold { display: none !important; }
+  .tips { color: var(--dov); font-size: 13px; margin-top: 14px; }
+  .fraga-banner { background: var(--kort); border: 1px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+  .fraga-banner b { display: block; margin-bottom: 4px; }
+  .fraga-banner button { border: 0; background: none; color: var(--dov); font: 14px Inter, sans-serif; padding: 4px 0; text-decoration: underline; }
+  .fraga { font: 600 18px/1.35 Lora, Georgia, serif; margin: 0 0 6px; }
+  .liten { color: var(--dov); font-size: 13px; }
+  .rad { display: flex; gap: 8px; } .rad .knapp { margin-top: 10px; }
+  .post { cursor: pointer; }
+  .post h3 { font-size: 16px; margin: 0 0 4px; }
+  .chip { display: inline-block; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 10px; border: 1px solid currentColor; margin-right: 6px; }
+  .chip.klar { color: var(--ok); } .chip.tunn { color: var(--gul); } .chip.kastad, .chip.fel { color: var(--fel); } .chip.ny, .chip.kompletterad { color: var(--dov); }
+  .detalj { margin-top: 10px; border-top: 1px solid var(--linje); padding-top: 10px; }
+  details summary { color: var(--dov); font-size: 14px; margin: 10px 0 6px; }
+  .original { white-space: pre-wrap; font-size: 14px; color: var(--dov); }
+  .ta-bort { background: none; border: 0; color: var(--fel); font: 600 15px Inter, sans-serif; padding: 12px 0 2px; }
+  nav { position: fixed; left: 0; right: 0; bottom: 0; background: var(--kort); border-top: 1px solid var(--linje); display: grid; grid-template-columns: repeat(3, 1fr); padding-bottom: env(safe-area-inset-bottom); }
+  nav button { border: 0; background: none; color: var(--dov); font: 600 13px Inter, sans-serif; padding: 10px 4px 12px; position: relative; }
+  nav button span { display: block; font-size: 20px; line-height: 1.2; }
+  nav button[aria-current="page"] { color: var(--accent); }
+  .bricka { position: absolute; top: 6px; left: 58%; background: var(--accent); color: var(--accent-text); border-radius: 9px; font-size: 11px; padding: 1px 6px; }
+  .tom { color: var(--dov); text-align: center; padding: 30px 10px; }
+  nav { grid-template-columns: repeat(4, 1fr) !important; }
+  .videor { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .videor video { width: 100%; aspect-ratio: 9/16; background: #000; border-radius: 10px; display: block; }
+  .videor .knapp { margin-top: 8px; padding: 11px; font-size: 15px; }
+  .rek { font-size: 12px; font-weight: 600; color: var(--accent); margin: 0 0 4px; min-height: 16px; }
+  .plattform h2 { font: 600 18px Inter, sans-serif; margin: 0 0 8px; display: flex; justify-content: space-between; align-items: center; }
+  .plattform .textruta { white-space: pre-wrap; font-size: 14px; background: var(--bg); border: 1px solid var(--linje); border-radius: 10px; padding: 10px; max-height: 160px; overflow: auto; }
+  .bock { font: 600 14px Inter, sans-serif; display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .bock input { width: 20px; height: 20px; accent-color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <!-- ======================= Idag ======================= -->
+  <section id="vy-idag">
+    <h1>Dagens Reels och TikToks</h1>
+    <p class="under" id="idag-rubrik">Hämtar …</p>
+    <div id="idag"></div>
+    <div class="kort" id="tiktok-kort">
+      <h2>TikTok-statistik</h2>
+      <p class="hjalp">En gång i veckan: öppna <b>TikTok Studio → Analys → Ladda ner data</b> (senaste 7 eller 28 dagarna)
+        och välj filen här. Spanaren läser in den nästa morgon.</p>
+      <p class="liten" id="tiktok-senast"></p>
+      <input type="file" id="tiktok-fil" accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+      <div class="status" id="tiktok-status" role="status" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- ======================= Anteckna ======================= -->
+  <section id="vy-anteckna" class="dold">
+    <h1>Anteckna</h1>
+    <p class="under">Prata fritt. Vi gör en skarpare version och sparar den som underlag om den håller.</p>
+
+    <div class="fraga-banner dold" id="svarar">
+      <b id="svarar-fraga"></b>
+      <button type="button" id="svarar-avbryt">Avbryt svaret</button>
+    </div>
+
+    <div class="flikar" role="tablist" id="typflikar">
+      <button role="tab" data-typ="handelse" aria-selected="true">Något som hänt</button>
+      <button role="tab" data-typ="ide" aria-selected="false">Idé</button>
+      <button role="tab" data-typ="erfarenhet" aria-selected="false">Erfarenhet</button>
+    </div>
+
+    <form class="kort" id="form" novalidate>
+      <p class="hjalp" id="hjalp"></p>
+      <button type="button" class="prata dold" id="prata">🎙 Prata in</button>
+      <textarea id="text" maxlength="5000"></textarea>
+
+      <div id="handelse-falt">
+        <div class="etikett">Vad var det?</div>
+        <div class="val">
+          <label><input type="radio" name="handelsetyp" value="fråga" checked><span>Fråga</span></label>
+          <label><input type="radio" name="handelsetyp" value="samtal"><span>Samtal</span></label>
+          <label><input type="radio" name="handelsetyp" value="invändning"><span>Invändning</span></label>
+          <label><input type="radio" name="handelsetyp" value="objekt"><span>Bostad</span></label>
+          <label><input type="radio" name="handelsetyp" value="annat"><span>Annat</span></label>
+        </div>
+        <div class="etikett">Ort (om det spelar roll)</div>
+        <input type="text" id="ort" maxlength="80" placeholder="t.ex. Hedemora" autocomplete="off">
+      </div>
+
+      <div id="erfarenhet-falt" class="dold">
+        <div class="etikett">Vad är det?</div>
+        <div class="val">
+          <label><input type="radio" name="kalla" value="egen erfarenhet" checked><span>Något jag varit med om</span></label>
+          <label><input type="radio" name="kalla" value="allmän kunskap"><span>Allmän kunskap</span></label>
+        </div>
+      </div>
+
+      <button class="knapp" id="spara" type="submit">Spara</button>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </form>
+    <p class="tips">Säg inga namn, adresser eller telefonnummer. Den förbättrade versionen syns under Mina anteckningar efter någon minut.</p>
+  </section>
+
+  <!-- ======================= Frågor ======================= -->
+  <section id="vy-fragor" class="dold">
+    <h1>Frågor till dig</h1>
+    <p class="under">Svara med rösten, 20–40 sekunder räcker. Hoppa över det du inte har något bra svar på.</p>
+    <div id="fragelista"></div>
+  </section>
+
+  <!-- ======================= Mina anteckningar ======================= -->
+  <section id="vy-mina" class="dold">
+    <h1>Mina anteckningar</h1>
+    <p class="under">Allt du sparat. Tryck på en anteckning för att se, ändra eller ta bort den.</p>
+    <div id="lista"></div>
+  </section>
+</main>
+
+<nav>
+  <button data-vy="idag" aria-current="page"><span>🎬</span>Idag</button>
+  <button data-vy="anteckna"><span>🎙</span>Anteckna</button>
+  <button data-vy="fragor"><span>💬</span>Frågor<i class="bricka dold" id="bricka"></i></button>
+  <button data-vy="mina"><span>📒</span>Mina</button>
+</nav>
+
+<script>
+const ADRESS = "https://usfadqstzdrvnuccuipw.supabase.co/functions/v1/anteckning";
+const HJALP = {
+  handelse: ["Ett samtal, en fråga eller en invändning du stött på. Berätta som för en kollega.",
+             "Ex: En säljare i Säter undrade om hon måste tömma huset innan visning."],
+  ide: ["Ett ämne, en vinkel eller något du sett som kan bli ett inlägg.", "Ex: Vad betyder 'accepterat pris' egentligen?"],
+  erfarenhet: ["Något du lärt dig om att sälja eller köpa bostad som andra har nytta av.",
+               "Ex: Visningar på lördagar kl 11 får flest besökare på landet."],
+};
+const STATUS = { ny: "Förbättras …", klar: "Sparad som underlag", tunn: "Behöver lite mer", kastad: "Inte använd", kompletterad: "Kompletterad", fel: "Gick inte" };
+const TYPNAMN = { handelse: "Något som hänt", ide: "Idé", erfarenhet: "Erfarenhet" };
+
+function las(n) { try { return localStorage.getItem(n); } catch { return null; } }
+function skriv(n, v) { try { v === null ? localStorage.removeItem(n) : localStorage.setItem(n, v); } catch {} }
+const $ = (id) => document.getElementById(id);
+const esc = (s) => (s ?? "").toString().replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// Nyckeln finns i länkens #-del (skickas aldrig till GitHub) och sparas i telefonen.
+const fran_lank = new URLSearchParams(location.hash.slice(1)).get("k");
+if (fran_lank) skriv("hemplats_k", fran_lank);
+const nyckel = fran_lank || las("hemplats_k");
+
+async function anropa(kropp) {
+  const r = await fetch(ADRESS, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ k: nyckel, ...kropp }) });
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok || !d.ok) throw new Error(d.fel || "Det gick inte just nu. Försök igen.");
+  return d;
+}
+const natfel = (e) => (e.message.startsWith("Failed") || e.message.includes("NetworkError") || e.message.includes("Load failed"))
+  ? "Ingen kontakt. Försök igen när du har nät." : e.message;
+
+// ---------------- vyer
+let data = { anteckningar: [], fragor: [] };
+function visaVy(v) {
+  for (const n of ["idag", "anteckna", "fragor", "mina"]) $("vy-" + n).classList.toggle("dold", n !== v);
+  document.querySelectorAll("nav button").forEach(b => b.dataset.vy === v ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current"));
+  if (v === "idag") hamtaIdag(); else if (v !== "anteckna") hamta();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => visaVy(b.dataset.vy)));
+
+async function hamta() {
+  if (!nyckel) return;
+  try { data = await anropa({ atgard: "lista" }); } catch (e) { $("lista").innerHTML = `<p class="tom fel">${esc(natfel(e))}</p>`; return; }
+  ritaFragor(); ritaLista();
+}
+
+// ---------------- anteckna
+let typ = las("hemplats_typ") || "handelse", svararPa = null;
+const text = $("text"), status = $("status");
+function valjTyp(t) {
+  typ = t; skriv("hemplats_typ", t);
+  document.querySelectorAll("#typflikar button").forEach(b => b.setAttribute("aria-selected", b.dataset.typ === t));
+  $("hjalp").textContent = HJALP[t][0];
+  text.placeholder = HJALP[t][1];
+  $("handelse-falt").classList.toggle("dold", t !== "handelse");
+  $("erfarenhet-falt").classList.toggle("dold", t !== "erfarenhet");
+  text.value = las("hemplats_utkast_" + t) || "";
+}
+document.querySelectorAll("#typflikar button").forEach(b => b.addEventListener("click", () => { valjTyp(b.dataset.typ); status.textContent = ""; }));
+text.addEventListener("input", () => skriv("hemplats_utkast_" + typ, text.value));
+valjTyp(typ);
+
+function svaraPa(f) {
+  svararPa = f;
+  $("svarar-fraga").textContent = f.fraga;
+  $("svarar").classList.remove("dold");
+  valjTyp(f.typ); text.value = "";
+  visaVy("anteckna");
+  if (Tal) startaTal();
+}
+$("svarar-avbryt").addEventListener("click", () => { svararPa = null; $("svarar").classList.add("dold"); stoppaTal(); });
+
+if (!nyckel) {
+  status.textContent = "Den här länken saknar nyckel. Öppna länken från mejlet en gång, så kommer telefonen ihåg den.";
+  status.className = "status fel";
+  $("spara").disabled = true;
+}
+
+// Prata in: webbläsarens egen taligenkänning (gratis). Saknas den används mikrofonen på tangentbordet.
+const Tal = window.SpeechRecognition || window.webkitSpeechRecognition;
+const prata = $("prata");
+let lyssnar = null;
+function stoppaTal() { if (lyssnar) lyssnar.stop(); }
+function startaTal() {
+  if (lyssnar) return;
+  const t = new Tal();
+  t.lang = "sv-SE"; t.continuous = true; t.interimResults = true;
+  const bas = text.value ? text.value.replace(/\s*$/, " ") : ""; let klart = "";
+  t.onresult = (e) => {
+    let tillfalligt = "";
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) klart += e.results[i][0].transcript + " ";
+      else tillfalligt += e.results[i][0].transcript;
+    }
+    text.value = bas + klart + tillfalligt;
+    skriv("hemplats_utkast_" + typ, text.value);
+  };
+  t.onerror = (e) => {
+    status.textContent = e.error === "not-allowed"
+      ? "Mikrofonen är inte tillåten. Tillåt den i inställningarna, eller använd mikrofonen på tangentbordet."
+      : "Taligenkänningen fungerade inte här. Använd mikrofonen på tangentbordet i stället.";
+    status.className = "status fel";
+  };
+  t.onend = () => { lyssnar = null; prata.classList.remove("pa"); prata.textContent = "🎙 Prata in"; text.value = text.value.trim(); };
+  try { t.start(); } catch { return; }
+  lyssnar = t;
+  prata.classList.add("pa"); prata.textContent = "⏹ Klar, sluta lyssna";
+  status.textContent = "Lyssnar … prata på, och tryck när du är klar."; status.className = "status";
+}
+if (Tal) {
+  prata.classList.remove("dold");
+  prata.addEventListener("click", () => lyssnar ? stoppaTal() : startaTal());
+}
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  stoppaTal();
+  if (!text.value.trim()) { status.textContent = "Skriv eller säg något först."; status.className = "status fel"; return; }
+  const knapp = $("spara");
+  knapp.disabled = true; status.textContent = "Sparar …"; status.className = "status";
+  const kropp = { atgard: "spara", typ, text: text.value };
+  if (svararPa) kropp.fraga_id = svararPa.id;
+  if (typ === "handelse") { kropp.handelsetyp = document.querySelector("input[name=handelsetyp]:checked").value; kropp.ort = $("ort").value; }
+  if (typ === "erfarenhet") kropp.kalla = document.querySelector("input[name=kalla]:checked").value;
+  try {
+    await anropa(kropp);
+    text.value = ""; skriv("hemplats_utkast_" + typ, null); $("ort").value = "";
+    status.textContent = "Sparat. Den förbättrade versionen kommer under Mina anteckningar om någon minut.";
+    status.className = "status ok";
+    if (svararPa) { svararPa = null; $("svarar").classList.add("dold"); }
+  } catch (err) { status.textContent = natfel(err) + " Texten finns kvar."; status.className = "status fel"; }
+  finally { knapp.disabled = false; }
+});
+
+// ---------------- frågor
+function ritaFragor() {
+  const f = data.fragor || [];
+  $("bricka").textContent = f.length; $("bricka").classList.toggle("dold", !f.length);
+  $("fragelista").innerHTML = f.length ? "" : `<p class="tom">Inga frågor just nu. Nya kommer varje dag.</p>`;
+  for (const q of f) {
+    const el = document.createElement("div"); el.className = "kort";
+    el.innerHTML = `<p class="liten">${q.kalla === "uppfoljning" ? "Följdfråga på din anteckning" : "Fråga"}</p>
+      <p class="fraga">${esc(q.fraga)}</p><p class="liten">${esc(q.varfor || "")}</p>
+      <div class="rad"><button class="knapp">🎙 Svara</button><button class="knapp sek">Hoppa över</button></div>`;
+    const [svara, hoppa] = el.querySelectorAll("button");
+    svara.addEventListener("click", () => svaraPa(q));
+    hoppa.addEventListener("click", async () => {
+      hoppa.disabled = true;
+      try { await anropa({ atgard: "hoppa", id: q.id }); el.remove(); data.fragor = data.fragor.filter(x => x.id !== q.id); ritaFragor(); }
+      catch (e) { hoppa.disabled = false; alert(natfel(e)); }
+    });
+    $("fragelista").appendChild(el);
+  }
+}
+
+// ---------------- mina anteckningar
+function ritaLista() {
+  const a = data.anteckningar || [];
+  $("lista").innerHTML = a.length ? "" : `<p class="tom">Inget sparat än. Börja under Anteckna.</p>`;
+  for (const x of a) {
+    const el = document.createElement("div"); el.className = "kort post";
+    const datum = new Date(x.skapad).toLocaleDateString("sv-SE", { day: "numeric", month: "short" });
+    const chip = x.anvand ? `<span class="chip klar">Använd i inlägg</span>` : `<span class="chip ${x.status}">${STATUS[x.status] || x.status}</span>`;
+    el.innerHTML = `<h3>${esc(x.rubrik || x.original.slice(0, 60))}</h3>
+      <div class="liten">${chip}${TYPNAMN[x.typ]} · ${datum}</div>
+      <div class="detalj dold">
+        ${x.bedomning ? `<p class="liten">${esc(x.bedomning)}</p>` : ""}
+        ${x.status === "ny" ? `<p class="liten">Förbättringen görs inom någon minut, senast inom en timme.</p>` : `
+        <div class="etikett">Förbättrad version${x.mal_tabell ? " (det skribenten läser)" : ""}</div>
+        <textarea class="redigera">${esc(x.text || "")}</textarea>
+        <button class="knapp sek spara-andring">Spara ändringen</button>`}
+        ${(x.status === "tunn" || x.status === "kastad") ? `<button class="knapp sek anvand">Använd den ändå</button>` : ""}
+        <details><summary>Det du sa</summary><div class="original">${esc(x.original)}</div></details>
+        <button class="ta-bort">Ta bort</button>
+        <div class="status"></div>
+      </div>`;
+    const detalj = el.querySelector(".detalj"), st = el.querySelector(".detalj .status");
+    el.querySelector("h3").addEventListener("click", () => detalj.classList.toggle("dold"));
+    el.querySelector(".liten").addEventListener("click", () => detalj.classList.toggle("dold"));
+    const andra = el.querySelector(".spara-andring");
+    if (andra) andra.addEventListener("click", async () => {
+      andra.disabled = true;
+      try { await anropa({ atgard: "andra", id: x.id, text: el.querySelector(".redigera").value }); st.textContent = "Ändringen är sparad."; st.className = "status ok"; }
+      catch (e) { st.textContent = natfel(e); st.className = "status fel"; } finally { andra.disabled = false; }
+    });
+    const anvand = el.querySelector(".anvand");
+    if (anvand) anvand.addEventListener("click", async () => {
+      anvand.disabled = true;
+      try { await anropa({ atgard: "godkann", id: x.id }); await hamta(); }
+      catch (e) { st.textContent = natfel(e); st.className = "status fel"; anvand.disabled = false; }
+    });
+    el.querySelector(".ta-bort").addEventListener("click", async () => {
+      if (!confirm("Ta bort anteckningen? Den försvinner också som underlag.")) return;
+      try { await anropa({ atgard: "ta_bort", id: x.id }); el.remove(); data.anteckningar = data.anteckningar.filter(y => y.id !== x.id); }
+      catch (e) { st.textContent = natfel(e); st.className = "status fel"; }
+    });
+    $("lista").appendChild(el);
+  }
+}
+
+// ---------------- idag: dagens paket för Reels och TikTok
+const KONTON = { tiktok: "https://www.tiktok.com/@hemplats" };
+async function hamtaIdag() {
+  if (!nyckel) return;
+  let d;
+  try { d = await anropa({ atgard: "idag" }); } catch (e) { $("idag").innerHTML = `<p class="tom fel">${esc(natfel(e))}</p>`; return; }
+  visaTiktok(d.tiktok_senast);
+  const lista = d.inlagg || [];
+  if (!lista.length) { $("idag-rubrik").textContent = "Inget inlägg klart just nu. Nästa tas fram i kväll."; $("idag").innerHTML = ""; return; }
+  $("idag-rubrik").textContent = lista.length > 1 ? "Ett paket per inlägg. Lägg upp när det passar dig." : "";
+  $("idag").innerHTML = "";
+  for (const i of lista) $("idag").appendChild(paket(i));
+  const mal = new URLSearchParams(location.hash.slice(1)).get("id");   // från mejlets "Skriv en kommentar"
+  if (mal && $("inlagg-" + mal)) {
+    const k = $("inlagg-" + mal).querySelector(".betygskort");
+    k.scrollIntoView({ behavior: "smooth", block: "center" }); k.querySelector(".kommentar").focus({ preventScroll: true });
+  }
+}
+
+function visaTiktok(t) {
+  const datum = t ? new Date(t.uppladdad).toLocaleDateString("sv-SE", { day: "numeric", month: "long" }) : "";
+  $("tiktok-senast").textContent = !t ? "Ingen export uppladdad ännu."
+    : t.status === "fel" ? `Senaste filen (${datum}) gick inte att läsa: ${t.fel || "okänt fel"}. Prova en annan export.`
+    : t.status === "ny" ? `Uppladdad ${datum}. Läses in i morgon bitti.`
+    : `Senast inläst: ${datum} (${t.rader ?? 0} rader).`;
+}
+$("tiktok-fil").addEventListener("change", async (ev) => {
+  const f = ev.target.files[0]; if (!f) return;
+  const st = $("tiktok-status"); st.className = "status"; st.textContent = "Laddar upp …";
+  try {
+    const data = await new Promise((ok, nej) => { const r = new FileReader();
+      r.onload = () => ok(String(r.result).split(",")[1]); r.onerror = nej; r.readAsDataURL(f); });
+    await anropa({ atgard: "tiktok", namn: f.name, data });
+    st.textContent = "Tack! Filen läses in i morgon bitti."; st.className = "status ok";
+    visaTiktok({ uppladdad: new Date().toISOString(), status: "ny" });
+  } catch (e) { st.textContent = natfel(e); st.className = "status fel"; }
+  ev.target.value = "";
+});
+
+function paket(i) {
+  const tid = new Date(i.datum);
+  const kl = tid.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit" });
+  const el = document.createElement("div");
+  el.id = "inlagg-" + i.id;
+  const ig = i.instagram_auto
+    ? `<div class="kort plattform"><h2>Instagram</h2><p class="hjalp" style="margin:0">✓ Reelen med röst och musik är upplagd automatiskt. Du behöver inte göra något.</p></div>`
+    : `<div class="kort plattform"><h2>Instagram</h2><p class="hjalp" style="margin:0">Reelen läggs upp automatiskt kl ${kl}, med röst och låg musik.</p></div>`;
+  const chips = [[2, "👍👍 Riktigt bra"], [1, "👍 Bra"], [0, "👌 OK"], [-1, "👎 Inte bra"]];
+  el.innerHTML = `
+    <h2 style="font:600 20px/1.25 Lora,Georgia,serif;margin:18px 0 8px">I dag kl ${kl}<br><span style="font:15px Inter,sans-serif;color:var(--dov)">${esc(i.headline)}</span></h2>
+    <div class="kort">
+      <p class="hjalp">Välj version. Tryck <b>Dela</b> och välj TikTok direkt, eller <b>Spara video</b>.</p>
+      <div class="videor">
+        <div><p class="rek">För TikTok</p><video src="${esc(i.video_rost)}" controls playsinline preload="metadata"></video>
+          <button class="knapp dela" data-url="${esc(i.video_rost)}" data-namn="hemplats-${i.id}-rost.mp4">Dela: röst utan musik</button></div>
+        <div><p class="rek">Klar som den är</p><video src="${esc(i.video_musik)}" controls playsinline preload="metadata"></video>
+          <button class="knapp dela" data-url="${esc(i.video_musik)}" data-namn="hemplats-${i.id}-rost-och-musik.mp4">Dela: röst och musik</button></div>
+      </div>
+      <p class="liten" style="margin-top:8px">Röst utan musik: välj ett ljud i TikTok och sänk det till 10–20 % så att rösten hörs.</p>
+    </div>
+    <div class="kort plattform">
+      <h2>TikTok</h2>
+      <p class="hjalp">Kopiera texten (med hashtags), lägg upp videon i TikTok och klistra in. Slå på AI-märkningen.</p>
+      <div class="textruta">${esc(i.tiktok)}</div>
+      <div class="rad"><button class="knapp kopiera" data-p="tiktok">Kopiera text</button>
+        <a class="knapp sek" style="text-align:center;text-decoration:none" href="${KONTON.tiktok}">Öppna TikTok</a></div>
+      <label class="bock"><input type="checkbox" data-p="tiktok" ${i.upplagt.tiktok ? "checked" : ""}> Upplagt</label>
+    </div>
+    ${ig}
+    ${i.story ? `<div class="kort"><h2 style="font:600 18px Inter,sans-serif;margin:0 0 6px">Story ute på Instagram</h2>
+      <p class="hjalp" style="margin:0">Lägg den i höjdpunkten <b>${esc(i.story)}</b>: öppna din story, tryck <b>Höjdpunkt</b> och välj ${esc(i.story)}.</p></div>` : ""}
+    <div class="kort betygskort">
+      <h2 style="font:600 18px Inter,sans-serif;margin:0 0 6px">Vad tycker du om inlägget?</h2>
+      <p class="hjalp">Skribenten och granskarna lär sig av ditt betyg och din kommentar.</p>
+      <div class="val">${chips.map(([v, t]) => `<label><input type="radio" name="betyg-${i.id}" value="${v}" ${i.betyg === v ? "checked" : ""}><span>${t}</span></label>`).join("")}</div>
+      <textarea class="kommentar" style="min-height:80px;margin-top:10px" maxlength="3000" placeholder="Kommentar, t.ex. &quot;för mycket text&quot; eller &quot;bra hook, fler sådana&quot;">${esc(i.kommentar || "")}</textarea>
+      <button class="knapp spara-betyg">Spara kommentar</button>
+    </div>
+    <div class="status" role="status" aria-live="polite"></div>`;
+  const st = el.querySelector(".status");
+  el.querySelectorAll(".kopiera").forEach(b => b.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(i[b.dataset.p]); b.textContent = "Kopierat ✓"; setTimeout(() => b.textContent = "Kopiera text", 2500); }
+    catch { st.textContent = "Kunde inte kopiera. Tryck länge på texten och välj Kopiera."; st.className = "status fel"; }
+  }));
+  el.querySelectorAll(".dela").forEach(b => b.addEventListener("click", async () => {
+    const etikett = b.textContent; b.disabled = true; b.textContent = "Hämtar video …";
+    try {
+      const blob = await (await fetch(b.dataset.url)).blob();
+      const fil = new File([blob], b.dataset.namn, { type: "video/mp4" });
+      if (navigator.canShare && navigator.canShare({ files: [fil] })) {
+        await navigator.share({ files: [fil] });       // telefonens delningsmeny: Instagram, TikTok, Spara video
+      } else {                                         // dator eller äldre webbläsare: ladda ner
+        const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = b.dataset.namn; a.click();
+      }
+    } catch (e) { if (e.name !== "AbortError") { st.textContent = "Kunde inte hämta videon. Försök igen."; st.className = "status fel"; } }
+    finally { b.disabled = false; b.textContent = etikett; }
+  }));
+  el.querySelectorAll(`input[name="betyg-${i.id}"]`).forEach(r => r.addEventListener("change", async () => {
+    try { await anropa({ atgard: "betyg", id: i.id, betyg: Number(r.value) }); st.textContent = "Betyget är sparat ✓"; st.className = "status ok"; }
+    catch (e) { st.textContent = natfel(e); st.className = "status fel"; }
+  }));
+  el.querySelector(".spara-betyg").addEventListener("click", async (ev) => {
+    const knapp = ev.currentTarget; knapp.disabled = true;
+    try {
+      await anropa({ atgard: "betyg", id: i.id, kommentar: el.querySelector(".kommentar").value });
+      knapp.textContent = "Sparat ✓"; setTimeout(() => knapp.textContent = "Spara kommentar", 2500);
+    } catch (e) { st.textContent = natfel(e); st.className = "status fel"; }
+    finally { knapp.disabled = false; }
+  });
+  el.querySelectorAll(".bock input").forEach(c => c.addEventListener("change", async () => {
+    try { await anropa({ atgard: "markera", id: i.id, plattform: c.dataset.p, klart: c.checked }); }
+    catch (e) { c.checked = !c.checked; st.textContent = natfel(e); st.className = "status fel"; }
+  }));
+  return el;
+}
+
+const startvy = new URLSearchParams(location.hash.slice(1)).get("vy");
+visaVy(["idag", "anteckna", "fragor", "mina"].includes(startvy) ? startvy : "idag");
+if (nyckel) hamta();   // för brickan med antal frågor
+</script>
+</body>
+</html>
